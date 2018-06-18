@@ -1,4 +1,4 @@
 # test
 
 text for HTML
-https://github.com/yunzhe123/test/blob/master/demo.html
+https://rawgit.com/yunzhe123/test/blob/master/demo.html
