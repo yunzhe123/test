@@ -122,11 +122,12 @@ else
     global h1 h2;
     h1 = subplot(121);imshow(handles.imagefile1);
     a = size(handles.imagefile1);
-    title(['size:',num2str(a(1)),'x',num2str(a(2))]);
+    title(['size : ',num2str(a(1)),' x ',num2str(a(2))]);
+
     
     h2 = subplot(122);imshow(handles.imagefile2);
     b = size(handles.imagefile2);
-    title(['size:',num2str(b(1)),'x',num2str(b(2))])
+    title(['size : ',num2str(b(1)),' x ',num2str(b(2))])
     
     axis off;
 
