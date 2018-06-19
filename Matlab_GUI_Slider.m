@@ -22,7 +22,7 @@ function varargout = Matlab_GUI_Slider(varargin)
 
 % Edit the above text to modify the response to help Matlab_GUI_Slider
 
-% Last Modified by GUIDE v2.5 18-Jun-2018 22:09:59
+% Last Modified by GUIDE v2.5 18-Jun-2018 23:52:25
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -78,6 +78,7 @@ function btnFilePath1_Callback(hObject, eventdata, handles)
 % hObject    handle to btnFilePath1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
 [filename1,filepath1] = uigetfile({'*.jpg';'*.bmp';'*.png'},'Search image1');
 
 fullname1 = [filepath1 filename1];
@@ -96,6 +97,8 @@ imagesc(imagefile1);
 
 axis off;
 
+axis image;
+
 set(handles.sliderBlend, 'Value',0);
 
 
@@ -111,10 +114,23 @@ function sliderBlend_Callback(hObject, eventdata, handles)
 
 value = get(hObject,'Value');
 
-imageBlend = handles.imagefile1*(1-value) + handles.imagefile2*value;
+if size(handles.imagefile1) == size(handles.imagefile2)
+    imageBlend = handles.imagefile1*(1-value) + handles.imagefile2*value; 
+    imshow(imageBlend);
+    axis off;
+else
+    global h1 h2;
+    h1 = subplot(121);imshow(handles.imagefile1);
+    a = size(handles.imagefile1);
+    title(['size:',num2str(a(1)),'x',num2str(a(2))]);
+    
+    h2 = subplot(122);imshow(handles.imagefile2);
+    b = size(handles.imagefile2);
+    title(['size:',num2str(b(1)),'x',num2str(b(2))])
+    
+    axis off;
 
-imagesc(imageBlend);
-axis off;
+end 
 
 % --- Executes during object creation, after setting all properties.
 function sliderBlend_CreateFcn(hObject, eventdata, handles)
@@ -173,8 +189,12 @@ set(handles.textFilePath2,'string',fullname2);
 imagefile2 = imread(fullname2);
 
 handles.imagefile2 = imagefile2;
-
+    
 guidata(hObject,handles);
+
+
+
+
 
 function textFilePath2_Callback(hObject, eventdata, handles)
 % hObject    handle to textFilePath2 (see GCBO)
@@ -203,3 +223,31 @@ function figure1_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to figure1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
+
+
+% --- Executes on button press in pushbutton3.
+function pushbutton3_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global h1 h2;
+h=0;
+cla
+if ishandle(h1)   
+    delete(h1); h=1;
+end
+if ishandle(h2)  
+    delete(h2); h=1;
+end
+if h
+    delete(h1)  
+end
+
+% --- Executes on button press in checkbox1.
+function checkbox1_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox1
