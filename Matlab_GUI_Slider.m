@@ -22,7 +22,7 @@ function varargout = Matlab_GUI_Slider(varargin)
 
 % Edit the above text to modify the response to help Matlab_GUI_Slider
 
-% Last Modified by GUIDE v2.5 18-Jun-2018 23:52:25
+% Last Modified by GUIDE v2.5 19-Jun-2018 18:09:15
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -47,7 +47,7 @@ end
 % --- Executes just before Matlab_GUI_Slider is made visible.
 function Matlab_GUI_Slider_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
-% hObject    handle to figure
+% hObject    handle to Figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to Matlab_GUI_Slider (see VARARGIN)
@@ -58,6 +58,14 @@ handles.output = hObject;
 % Update handles structure
 guidata(hObject, handles);
 
+addlistener(handles.sliderBlend,'Value', 'PostSet',@slider);
+
+
+
+
+
+
+
 % UIWAIT makes Matlab_GUI_Slider wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
@@ -65,7 +73,7 @@ guidata(hObject, handles);
 % --- Outputs from this function are returned to the command line.
 function varargout = Matlab_GUI_Slider_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
-% hObject    handle to figure
+% hObject    handle to Figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -99,6 +107,8 @@ axis off;
 
 axis image;
 
+set(handles.Figure,'userdata',get(handles.Figure,'position'));
+
 set(handles.sliderBlend, 'Value',0);
 
 
@@ -112,26 +122,66 @@ function sliderBlend_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
-value = get(hObject,'Value');
+% value = get(hObject,'Value');
+% 
+
+
+
+
+function slider(hObject, eventdata)
+%handles = guidata(hObject);
+handles = guidata(eventdata.AffectedObject);
+value   = get(eventdata.AffectedObject, 'Value');
 
 if size(handles.imagefile1) == size(handles.imagefile2)
     imageBlend = handles.imagefile1*(1-value) + handles.imagefile2*value; 
-    imshow(imageBlend);
-    axis off;
-else
-    global h1 h2;
-    h1 = subplot(121);imshow(handles.imagefile1);
-    a = size(handles.imagefile1);
-    title(['size : ',num2str(a(1)),' x ',num2str(a(2))]);
-
+    %imshow(imageBlend);
+    imshow(imageBlend, 'Parent', handles.Figure);
+    %axis image
+    %axis off;
     
-    h2 = subplot(122);imshow(handles.imagefile2);
-    b = size(handles.imagefile2);
-    title(['size : ',num2str(b(1)),' x ',num2str(b(2))])
+elseif size(handles.imagefile1,1) <= size(handles.imagefile2,1)
+    figures = handles.imagefile1;
+    figureb = handles.imagefile2; 
+    a = padarray(figures,[round(size(figureb,1)/2-size(figures,1)/2) 0],0,'both');
+    b = padarray(figureb,[0 size(a,2)],0,'pre');
+    % resize a
+    a = padarray(a,[0 abs(size(b,2)-size(a,2))],0,'post');
+    a = imresize(a,[size(b,1) size(b,2)]);
+    c = a + b;
+    %imshow(c);
+    imshow(c, 'Parent', handles.Figure);
+    titleStr = sprintf(strcat('Different Size\n','figure1 size :',num2str(size(handles.imagefile1,1)),' x ',...
+        num2str(size(handles.imagefile1,2)),'    figure2 size :',...
+        num2str(size(handles.imagefile2,1)),' x ',...
+        num2str(size(handles.imagefile2,2))));
+    set(handles.Figure.Title,'String',titleStr);
+    %axis image
+    %axis off;
     
-    axis off;
-
+else%
+    figureb = handles.imagefile1;
+    figures = handles.imagefile2; 
+    a = padarray(figures,[round(size(figureb,1)/2-size(figures,1)/2) 0],0,'both');
+    b = padarray(figureb,[0 size(a,2)],0,'post');
+    % resize a
+    a = padarray(a,[0 abs(size(b,2)-size(a,2))],0,'pre');
+    a = imresize(a,[size(b,1) size(b,2)]);
+    c = a + b;
+    %imshow(c);
+    imshow(c, 'Parent', handles.Figure);
+    titleStr = sprintf(strcat('Different Size\n','figure1 size :',num2str(size(handles.imagefile1,1)),' x ',...
+        num2str(size(handles.imagefile1,2)),'    figure2 size :',...
+        num2str(size(handles.imagefile2,1)),' x ',...
+        num2str(size(handles.imagefile2,2))));
+    set(handles.Figure.Title,'String',titleStr);
+    %axis image
+    %axis off;
+  
 end 
+%value = get(eventdata,'NewValue');
+
+
 
 % --- Executes during object creation, after setting all properties.
 function sliderBlend_CreateFcn(hObject, eventdata, handles)
@@ -231,18 +281,10 @@ function pushbutton3_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton3 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global h1 h2;
-h=0;
-cla
-if ishandle(h1)   
-    delete(h1); h=1;
-end
-if ishandle(h2)  
-    delete(h2); h=1;
-end
-if h
-    delete(h1)  
-end
+cla(handles.Figure,'reset')
+axis off
+
+% set(handles.Figure,'Position',get(handles.Figure,'UserData'))
 
 % --- Executes on button press in checkbox1.
 function checkbox1_Callback(hObject, eventdata, handles)
@@ -252,3 +294,12 @@ function checkbox1_Callback(hObject, eventdata, handles)
 
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox1
+
+
+% --- Executes during object creation, after setting all properties.
+function Figure_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to Figure (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: place code in OpeningFcn to populate Figure
